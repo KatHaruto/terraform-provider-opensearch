@@ -478,6 +478,23 @@ func awsSession(region string, conf *ProviderConf, endpoint string) *awssession.
 	// note: if #1 is chosen, then no further providers will be tested, since we've overridden the credentials with just a static provider
 	if conf.awsAccessKeyId != "" {
 		sessOpts.Config.Credentials = awscredentials.NewStaticCredentials(conf.awsAccessKeyId, conf.awsSecretAccessKey, conf.awsSessionToken)
+		if conf.awsAssumeRoleArn != "" {
+			if conf.awsAssumeRoleExternalID == "" {
+				conf.awsAssumeRoleExternalID = ""
+			}
+			tmpSess, err := awssession.NewSession(&aws.Config{
+				Region: aws.String(region),
+				Credentials: awscredentials.NewStaticCredentials(
+					conf.awsAccessKeyId,
+					conf.awsSecretAccessKey,
+					"",
+				),
+			})
+			if err != nil {
+				log.Fatalf("Failed to create session: %v", err)
+			}
+			sessOpts.Config.Credentials = awsstscreds.NewCredentials(tmpSess, conf.awsAssumeRoleArn)			
+		}
 	} else if conf.awsAssumeRoleArn != "" {
 		if conf.awsAssumeRoleExternalID == "" {
 			conf.awsAssumeRoleExternalID = ""
