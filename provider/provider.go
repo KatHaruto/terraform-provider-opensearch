@@ -493,7 +493,7 @@ func awsSession(region string, conf *ProviderConf, endpoint string) *awssession.
 			if err != nil {
 				log.Fatalf("Failed to create session: %v", err)
 			}
-			sessOpts.Config.Credentials = awsstscreds.NewCredentials(tmpSess, conf.awsAssumeRoleArn)			
+			sessOpts.Config.Credentials = awsstscreds.NewCredentials(tmpSess, conf.awsAssumeRoleArn)
 		}
 	} else if conf.awsAssumeRoleArn != "" {
 		if conf.awsAssumeRoleExternalID == "" {
